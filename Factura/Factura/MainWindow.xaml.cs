@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,12 +47,7 @@ namespace Factura
             get { return _subtotal; }
             set { _subtotal = value; }
         }
-        private int _cantidad;
-        public int Cantidad
-        {
-            get { return _cantidad; }
-            set { _cantidad = value; }
-        }
+
         private DateTime _fechaFactura;
         public DateTime FechaFactura
         {
@@ -70,7 +66,7 @@ namespace Factura
             get { return _total; }
             set { _total = value; }
         }
-        public Facturad(int num, int por, string tipo, int subtotal, int cantidad, DateTime fecha, int desto, int tot)
+        public Facturad(int num, int por, string tipo, int subtotal, DateTime fecha, int desto, int tot)
         {
             Numero = num;
             PorImpuesto = por;
@@ -98,64 +94,67 @@ namespace Factura
             get { return _precio; }
             set { _precio = value; }
         }
+        private int _cantidad;
+        public int Cantidad
+        {
+            get { return _cantidad; }
+            set { _cantidad = value; }
+        }
 
-        public Producto(int referencia, string nombre, int precio)
+        public Producto(int referencia, string nombre, int precio, int cant)
         {
             Referencia = referencia;
             Nombre = nombre;
             Precio = precio;
-        }
-    }
-    #endregion
-    #region Cliente
-    public class Cliente
-    {
-        private int _id;
-        public int Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
-        private int _cedula;
-        public int Cedula
-        {
-            get { return _cedula; }
-            set { _cedula = value; }
-        }
-        private string _nombre;
-        public string Nombre
-        {
-            get { return _nombre; }
-            set { _nombre = value; }
-        }
-        public Cliente(int id, int cedula, string nombre)
-        {
-            Id = id;
-            Cedula = cedula;
-            Nombre = nombre;
+            Cantidad = cant;
         }
     }
     #endregion
     public partial class MainWindow : Window
     {
-        public ObservableCollection<Producto> produc;
+        public DataTable dt = new DataTable();
+        public ObservableCollection<Producto> producExis;
+        public ObservableCollection<Producto> producFac = new ObservableCollection<Producto>();
+        public ObservableCollection<Facturad> factu;
         public MainWindow()
         {
             InitializeComponent();
-            IniciarClases();
+            IniciarInventario();
         }
-        public void IniciarClases()
+        public void IniciarInventario()
         {
-            produc = new ObservableCollection<Producto>(){
-                new Producto(01, "Empanada", 5000),
-                new Producto(02, "Marihuana", 13000),
-                new Producto(03, "Lechuga del demonio", 50000),
-                new Producto(04, "Extasis", 70000),
-                new Producto(05, "Burundanga", 85000),
-                new Producto(06, "Butifarra", 3000),
+            producExis = new ObservableCollection<Producto>()
+            {
+                new Producto(01, "Empanada", 5000, 0),
+                new Producto(02, "Marihuana", 13000, 0),
+                new Producto(03, "Lechuga del demonio", 50000, 0),
+                new Producto(04, "Extasis", 70000, 0),
+                new Producto(05, "Burundanga", 85000, 0),
+                new Producto(06, "Butifarra", 3000, 0),
         };
-            ComboPro.ItemsSource = produc;
+            dt.Columns.Add("Referencia");
+            dt.Columns.Add("Nombre");
+            dt.Columns.Add("Precio");
+            ComboPro.ItemsSource = producExis;
             ComboPro.DisplayMemberPath = "Nombre";
+            ComboPro.SelectedValuePath = "Referencia";
+        }
+        public void DatosFactura()
+        {
+            factu = new ObservableCollection<Facturad>()
+            {
+                new Facturad(0001, 19, "IVA", 300000, DateTime.Today, 0, 357000),
+                new Facturad(0002, 19, "IVA", 300000, DateTime.Today, 0, 357000),
+            };
+        }
+
+        private void Selec_Click(object sender, RoutedEventArgs e) 
+        {
+            MessageBox.Show(Convert.ToString(ComboPro.SelectedValue));
+            //producFac.Add(producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue)));
+            dt.Rows.Add(producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue)));
+            ProduGrid.ItemsSource = dt.DefaultView;
+            ProduGrid.ItemsSource = producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue));
         }
     }
 }
