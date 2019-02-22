@@ -112,7 +112,7 @@ namespace Factura
     #endregion
     public partial class MainWindow : Window
     {
-        public DataTable dt = new DataTable();
+
         public ObservableCollection<Producto> producExis;
         public ObservableCollection<Producto> producFac = new ObservableCollection<Producto>();
         public ObservableCollection<Facturad> factu;
@@ -121,6 +121,7 @@ namespace Factura
             InitializeComponent();
             IniciarInventario();
         }
+
         public void IniciarInventario()
         {
             producExis = new ObservableCollection<Producto>()
@@ -131,14 +132,13 @@ namespace Factura
                 new Producto(04, "Extasis", 70000, 0),
                 new Producto(05, "Burundanga", 85000, 0),
                 new Producto(06, "Butifarra", 3000, 0),
-        };
-            dt.Columns.Add("Referencia");
-            dt.Columns.Add("Nombre");
-            dt.Columns.Add("Precio");
+            };
+
             ComboPro.ItemsSource = producExis;
             ComboPro.DisplayMemberPath = "Nombre";
             ComboPro.SelectedValuePath = "Referencia";
         }
+
         public void DatosFactura()
         {
             factu = new ObservableCollection<Facturad>()
@@ -148,13 +148,29 @@ namespace Factura
             };
         }
 
-        private void Selec_Click(object sender, RoutedEventArgs e) 
+        private void Selec_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(Convert.ToString(ComboPro.SelectedValue));
+
+
             //producFac.Add(producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue)));
-            dt.Rows.Add(producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue)));
-            ProduGrid.ItemsSource = dt.DefaultView;
-            ProduGrid.ItemsSource = producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue));
+            if (string.IsNullOrEmpty(Convert.ToString(ComboPro.SelectedValue)))
+            {
+                MessageBox.Show("Ingrese un producto");
+            }
+            else
+            {
+                foreach (var item in producExis)
+                {
+
+                    if (Convert.ToInt32(ComboPro.SelectedValue) == item.Referencia)
+                    {
+                        producFac.Add(new Producto(Convert.ToInt32(item.Referencia), item.Nombre.ToString(), Convert.ToInt32(item.Precio), Convert.ToInt32(TXTCant.Text)));
+                    }
+                }
+                ProduGrid.ItemsSource = producFac;
+            }
+            //ProduGrid.ItemsSource = producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue));
         }
     }
 }
