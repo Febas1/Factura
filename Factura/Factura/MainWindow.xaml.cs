@@ -47,9 +47,8 @@ namespace Factura
             get { return _subtotal; }
             set { _subtotal = value; }
         }
-
-        private DateTime _fechaFactura;
-        public DateTime FechaFactura
+        private string _fechaFactura;
+        public string FechaFactura
         {
             get { return _fechaFactura; }
             set { _fechaFactura = value; }
@@ -66,10 +65,15 @@ namespace Factura
             get { return _total; }
             set { _total = value; }
         }
-        public Facturad(int num, int por, string tipo, int subtotal, DateTime fecha, int desto, int tot)
+        public Facturad(int num, int por, string tipo, int subtotal, string fecha, int desto, int tot)
         {
             Numero = num;
             PorImpuesto = por;
+            TipoImpuesto = tipo;
+            Subtotal = subtotal;
+            FechaFactura = fecha;
+            Descuento = desto;
+            Total = tot;
         }
     }
     #endregion
@@ -120,6 +124,7 @@ namespace Factura
         {
             InitializeComponent();
             IniciarInventario();
+            DatosFactura();
         }
 
         public void IniciarInventario()
@@ -133,7 +138,6 @@ namespace Factura
                 new Producto(05, "Burundanga", 85000, 0),
                 new Producto(06, "Butifarra", 3000, 0),
             };
-
             ComboPro.ItemsSource = producExis;
             ComboPro.DisplayMemberPath = "Nombre";
             ComboPro.SelectedValuePath = "Referencia";
@@ -143,9 +147,10 @@ namespace Factura
         {
             factu = new ObservableCollection<Facturad>()
             {
-                new Facturad(0001, 19, "IVA", 300000, DateTime.Today, 0, 357000),
-                new Facturad(0002, 19, "IVA", 300000, DateTime.Today, 0, 357000),
+                new Facturad(0001, 19, "IVA", 300000, "20/03/2018", 0, 357000),
+                new Facturad(0002, 19, "IVA", 300000, "20/03/2018", 0, 357000),
             };
+            Factur.ItemsSource = factu;
         }
 
         private void Selec_Click(object sender, RoutedEventArgs e)
@@ -160,17 +165,48 @@ namespace Factura
             }
             else
             {
-                foreach (var item in producExis)
+                if (string.IsNullOrEmpty(TXTCant.Text))
                 {
-
-                    if (Convert.ToInt32(ComboPro.SelectedValue) == item.Referencia)
+                    MessageBox.Show("Ingrese una cantidad");
+                }
+                else
+                {
+                    foreach (var item in producExis)
                     {
-                        producFac.Add(new Producto(Convert.ToInt32(item.Referencia), item.Nombre.ToString(), Convert.ToInt32(item.Precio), Convert.ToInt32(TXTCant.Text)));
+
+                        if (Convert.ToInt32(ComboPro.SelectedValue) == item.Referencia)
+                        {
+                            producFac.Add(new Producto(Convert.ToInt32(item.Referencia), item.Nombre.ToString(), Convert.ToInt32(item.Precio), Convert.ToInt32(TXTCant.Text)));
+                            SacarSubtotal();
+                        }
                     }
                 }
                 ProduGrid.ItemsSource = producFac;
             }
             //ProduGrid.ItemsSource = producExis.Where((x) => x.Referencia == Convert.ToInt32(ComboPro.SelectedValue));
+        }
+
+        private void Eliminar_Click(object sender, RoutedEventArgs e)
+        {
+            //var currentRowIndex = .Items.IndexOf(my_dataGrid.CurrentItem);
+        }
+
+        private void CrearFac_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        public void SacarSubtotal()
+        {
+            int sub = 0;
+            foreach (var item in producFac)
+            {
+                sub = sub + (item.Precio * item.Cantidad);
+            }
+            Sub.Text = Convert.ToString(sub);
+        }
+        public void SacarTotal()
+        {
+            int tot = 0;
         }
     }
 }
